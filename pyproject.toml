@@ -7,7 +7,20 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+pandas = "^2.1.4"
+langchain = "^0.1.0"
+huggingface-hub = "^0.20.2"
+openai = "^1.7.0"
+langchain-openai = "^0.0.2"
+pypdf2 = "^3.0.1"
+tiktoken = "^0.5.2"
+pinecone-client = {extras = ["grpc"], version = "^2.2.4"}
+pylint = "^3.0.3"
+streamlit = "^1.29.0"
 
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.28.0"
 
 [build-system]
 requires = ["poetry-core"]
