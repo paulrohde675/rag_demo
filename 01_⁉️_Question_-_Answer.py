@@ -4,7 +4,7 @@ from sidebar import sidebar
 
 @st.cache
 def querey_qa_chain(query):
-    return st.session_state.qa_chain(query)
+    return st.session_state.qa_chain_with_sources(query)
 
 def main_page():
 
@@ -16,7 +16,7 @@ def main_page():
     st.text_input("Search query:", value="", help="e.g. 'Explain starformation in five sentences'", key="search_query")
 
     if st.session_state.search_query != "":
-        st.session_state.qa_answer = st.session_state.qa_chain(st.session_state.search_query)
+        st.session_state.qa_answer = querey_qa_chain(st.session_state.search_query)
 
     if st.session_state.qa_answer != "":
         st.write("Answer:")

@@ -3,12 +3,19 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain.chains import RetrievalQAWithSourcesChain
+from langchain.agents import Tool, AgentExecutor, LLMSingleActionAgent, AgentOutputParser
+from custom_parser import CustomOutputParser
+from langchain.memory import ConversationBufferWindowMemory
 
 import streamlit as st
 import pinecone
 import os
 
 def init():
+
+    # get the api keys
+    if 'open_ai_key' not in st.session_state:
+        st.session_state.open_ai_key = os.getenv('OPENAI_API_KEY') or 'OPENAI_API_KEY'
 
     # init embeddings model
     if 'embed' not in st.session_state:
@@ -51,14 +58,44 @@ def init():
     if 'qa_answer' not in st.session_state:
         st.session_state.qa_answer = ""
 
-    if 'qa_chain' not in st.session_state:
-        llm = ChatOpenAI(
+    if 'llm_model' not in st.session_state:
+        st.session_state.llm_model = ChatOpenAI(
             model_name='gpt-3.5-turbo',
             temperature=0.0
         )
 
-        st.session_state.qa_chain = RetrievalQAWithSourcesChain.from_chain_type(
-            llm=llm,
+    if 'qa_chain_with_sources' not in st.session_state:
+        st.session_state.qa_chain_with_sources = RetrievalQAWithSourcesChain.from_chain_type(
+            llm=st.session_state.llm_model,
             chain_type="stuff",
             retriever=st.session_state.vectorstore.as_retriever()
         )
+
+    if 'qa_chain' not in st.session_state:
+        st.session_state.qa_chain = RetrievalQA.from_chain_type(
+            llm=st.session_state.llm_model,
+            chain_type="stuff",
+            retriever=st.session_state.vectorstore.as_retriever()
+        )
+
+    if 'retriever_tool' not in st.session_state:
+        st.session_state.retriever_tool = Tool(
+            name = 'Knowledge Base',
+            func=st.session_state.qa_chain.run,
+            description=(
+                'use this tool when answering astrophysics queries to get '
+                'more information about the topic'
+            )
+        )
+
+    # conversational memory
+    if 'conversation_memory' not in st.session_state:
+        st.session_state.conversational_memory = ConversationBufferWindowMemory(
+            memory_key='chat_history',
+            k=3,
+            return_messages=True
+    )
+
+
+
+
