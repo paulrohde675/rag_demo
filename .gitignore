@@ -1,2 +1,3 @@
 documents/
 *.ipynb
+__pycache__/
