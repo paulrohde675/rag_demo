@@ -25,6 +25,7 @@ def init():
     # init embeddings model
     if 'embed' not in st.session_state:
         st.session_state.embed = OpenAIEmbeddings(
+            api_key=st.session_state.open_ai_key,
             model='text-embedding-ada-002',
         )
     
@@ -68,6 +69,7 @@ def init():
 
     if 'llm_model' not in st.session_state:
         st.session_state.llm_model = ChatOpenAI(
+            api_key=st.session_state.open_ai_key,
             model_name='gpt-3.5-turbo',
             temperature=0.0
         )
