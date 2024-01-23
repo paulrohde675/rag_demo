@@ -13,16 +13,10 @@ import os
 
 def init():
 
-    print("-------------------")
-    print(os.getenv("is_local"))
-    print("-------------------")
-
     # Set up the environment
     if os.getenv("is_local") is not None and os.getenv("gcp-rag-demo-key") is not None:
         # Path to your service account key file
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(os.getenv("gcp-rag-demo-key"))
-        print(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'C:/Users/paulr/GCP/gleaming-lead-411920-a0e6182b13a3.json'
 
     # get the api keys
     if 'open_ai_key' not in st.session_state:
