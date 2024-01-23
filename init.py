@@ -5,6 +5,7 @@ from langchain.chains import RetrievalQA
 from langchain.chains import RetrievalQAWithSourcesChain
 from langchain.agents import Tool
 from langchain.memory import ConversationBufferWindowMemory
+from google.cloud import secretmanager
 
 import streamlit as st
 import pinecone
@@ -12,9 +13,20 @@ import os
 
 def init():
 
+    print("-------------------")
+    print(os.getenv("is_local"))
+    print("-------------------")
+
+    # Set up the environment
+    if os.getenv("is_local") is not None and os.getenv("gcp-rag-demo-key") is not None:
+        # Path to your service account key file
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(os.getenv("gcp-rag-demo-key"))
+        print(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'C:/Users/paulr/GCP/gleaming-lead-411920-a0e6182b13a3.json'
+
     # get the api keys
     if 'open_ai_key' not in st.session_state:
-        st.session_state.open_ai_key = os.getenv('OPENAI_API_KEY') or 'OPENAI_API_KEY'
+        st.session_state.open_ai_key = access_secret_version('OPENAI_API_KEY') or 'OPENAI_API_KEY'
 
     # init embeddings model
     if 'embed' not in st.session_state:
@@ -22,10 +34,13 @@ def init():
             model='text-embedding-ada-002',
         )
     
+
     # init vector store
     if 'vector_store' not in st.session_state:
-        PINECONE_API_KEY = os.getenv('PINECONE_RAGDEMO_API_KEY') or 'PINECONE_RAGDEMO_API_KEY'
-        PINECONE_ENVIRONMENT = os.getenv('PINECONE_RAGDEMO_ENV') or 'PINECONE_RAGDEMO_ENV'
+        # PINECONE_API_KEY = os.getenv('PINECONE_RAGDEMO_API_KEY') or 'PINECONE_RAGDEMO_API_KEY'
+        # PINECONE_ENVIRONMENT = os.getenv('PINECONE_RAGDEMO_ENV') or 'PINECONE_RAGDEMO_ENV'
+        PINECONE_API_KEY = access_secret_version('PINECONE_RAGDEMO_API_KEY') or 'PINECONE_RAGDEMO_API_KEY'
+        PINECONE_ENVIRONMENT = access_secret_version('PINECONE_RAGDEMO_ENV') or 'PINECONE_RAGDEMO_ENV'
 
         pinecone.init(
             api_key=PINECONE_API_KEY,
@@ -94,6 +109,29 @@ def init():
             k=3,
             return_messages=True
     )
+
+def access_secret_version(secret_id, version_id="latest"):
+    """
+    Accesses a secret version in Google Cloud Secret Manager.
+
+    Args:
+    secret_id: Secret ID in Secret Manager
+    version_id: Version of the secret (default "latest")
+
+    Returns:
+    The payload of the secret version.
+    """
+    # Create the Secret Manager client.
+    client = secretmanager.SecretManagerServiceClient()
+
+    # Build the resource name of the secret version.
+    name = f"projects/gleaming-lead-411920/secrets/{secret_id}/versions/{version_id}"
+
+    # Access the secret version.
+    response = client.access_secret_version(request={"name": name})
+
+    # Return the decoded payload of the secret.
+    return response.payload.data.decode("UTF-8")
 
 
 
