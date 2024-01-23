@@ -1,0 +1,20 @@
+# Rag-Demo
+
+A Demo project for the Retrival Augmented Generation (RAG)
+
+## Getting Started
+
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+
+### Prerequisites
+
+You need to have Python installed on your machine. You can download it from [here](https://www.python.org/downloads/).
+
+### Installing
+
+poetry 
+
+### Push to Artifactory
+
+docker build -t europe-west1-docker.pkg.dev/gleaming-lead-411920/rag-demo-repo/streamlit-app .
+docker push europe-west1-docker.pkg.dev/gleaming-lead-411920/rag-demo-repo/streamlit-app 
